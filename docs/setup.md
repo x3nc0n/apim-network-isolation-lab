@@ -83,7 +83,9 @@ To opt in with CLI, append, for example:
 # --parameters deployExternalRestricted=true externalAllowedCidr='192.0.2.1/32'
 ```
 
-APIM names include a resource-group-derived suffix; repeat deployment to the same group targets the same lab. Internal private IPs may change after network/service changes. Redeploy/update both gateway backends if that happens. Do not swap an APIM SKU without reviewing its networking capabilities.
+Resource names use `<prefix>-<resource-group-derived-unique-part>-<scenario>`. Default scenario suffixes are `public-basic`, `private-developer`, `appgwnofilter`, and `appgwhostfilter`; optional APIM suffixes are `public-standard`, `private-premium`, and `public-iprestricted`. Scenario tags reinforce the distinction. The nofilter gateway still has managed WAF inspection; only its incoming-Host custom filter is absent.
+
+Repeat deployment to the same group targets the same lab. Internal private IPs may change after network/service changes. Redeploy/update both gateway backends if that happens. Do not swap an APIM SKU without reviewing its networking capabilities. Changing an existing resource's name creates a new resource rather than renaming it; remove an old disposable lab deliberately instead of leaving duplicate billable instances.
 
 ## Costs and cleanup
 

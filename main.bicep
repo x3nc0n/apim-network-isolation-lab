@@ -64,9 +64,9 @@ module network 'modules/network.bicep' = {
 module publicBasic 'modules/apim.bicep' = {
   name: 'public-basic'
   params: {
-    name: '${stem}-basic'
+    name: '${stem}-public-basic'
     location: location
-    tags: tags
+    tags: union(tags, { scenario: 'public-direct-basic' })
     sku: 'Basic'
     publisherEmail: publisherEmail
     workspaceId: workspace.id
@@ -76,9 +76,9 @@ module publicBasic 'modules/apim.bicep' = {
 module internalDeveloper 'modules/apim.bicep' = {
   name: 'internal-developer'
   params: {
-    name: '${stem}-internal'
+    name: '${stem}-private-developer'
     location: location
-    tags: tags
+    tags: union(tags, { scenario: 'private-developer-behind-appgw' })
     sku: 'Developer'
     networkMode: 'Internal'
     subnetId: network.outputs.internalSubnetId
@@ -90,9 +90,9 @@ module internalDeveloper 'modules/apim.bicep' = {
 module publicStandard 'modules/apim.bicep' = if (deployStandard) {
   name: 'public-standard'
   params: {
-    name: '${stem}-standard'
+    name: '${stem}-public-standard'
     location: location
-    tags: tags
+    tags: union(tags, { scenario: 'public-direct-standard' })
     sku: 'Standard'
     publisherEmail: publisherEmail
     workspaceId: workspace.id
@@ -102,9 +102,9 @@ module publicStandard 'modules/apim.bicep' = if (deployStandard) {
 module internalPremium 'modules/apim.bicep' = if (deployPremium) {
   name: 'internal-premium'
   params: {
-    name: '${stem}-premium'
+    name: '${stem}-private-premium'
     location: location
-    tags: tags
+    tags: union(tags, { scenario: 'private-premium' })
     sku: 'Premium'
     networkMode: 'Internal'
     subnetId: network.outputs.premiumSubnetId
@@ -116,9 +116,9 @@ module internalPremium 'modules/apim.bicep' = if (deployPremium) {
 module externalRestricted 'modules/apim.bicep' = if (deployExternalRestricted) {
   name: 'external-restricted'
   params: {
-    name: '${stem}-external'
+    name: '${stem}-public-iprestricted'
     location: location
-    tags: tags
+    tags: union(tags, { scenario: 'public-external-source-ip-restricted' })
     sku: 'Developer'
     networkMode: 'External'
     subnetId: network.outputs.externalSubnetId
@@ -130,9 +130,9 @@ module externalRestricted 'modules/apim.bicep' = if (deployExternalRestricted) {
 module frontends 'modules/frontend.bicep' = [for (mode, index) in ['rewrite', 'strict']: {
   name: 'frontend-${mode}'
   params: {
-    name: '${stem}-${mode}'
+    name: '${stem}-${mode == 'rewrite' ? 'appgwnofilter' : 'appgwhostfilter'}'
     location: location
-    tags: tags
+    tags: union(tags, { scenario: mode == 'rewrite' ? 'appgw-no-incoming-host-filter' : 'appgw-strict-incoming-host-filter' })
     strictHostFiltering: mode == 'strict'
     frontendHostname: frontendHostname
     frontendPfxBase64: frontendPfxBase64

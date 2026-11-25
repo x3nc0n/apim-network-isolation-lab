@@ -132,6 +132,18 @@ test('ARM schema, secure parameters, default inventory, opt-ins and output shape
   }
   assert.equal(deployment(template, 'public-basic').condition, undefined);
   assert.equal(deployment(template, 'internal-developer').condition, undefined);
+  for (const [name, suffix] of [
+    ['public-basic', 'public-basic'], ['internal-developer', 'private-developer'],
+    ['public-standard', 'public-standard'], ['internal-premium', 'private-premium'],
+    ['external-restricted', 'public-iprestricted'],
+  ]) {
+    assert.ok(deployment(template, name).properties.parameters.name.value.includes(`-${suffix}`),
+      `${name}: missing scenario-readable resource name`);
+    assert.ok(deployment(template, name).properties.parameters.tags.value.includes('scenario'),
+      `${name}: missing scenario tag`);
+  }
+  assert.ok(frontend(template).properties.parameters.name.value.includes('appgwnofilter'));
+  assert.ok(frontend(template).properties.parameters.name.value.includes('appgwhostfilter'));
   for (const [name, flag] of [['public-standard', 'deployStandard'], ['internal-premium', 'deployPremium'],
     ['external-restricted', 'deployExternalRestricted']]) {
     assert.equal(template.parameters[flag].defaultValue, false);

@@ -22,6 +22,8 @@ A disposable Azure lab comparing **network reachability, backend Host rewriting,
 
 Basic/Standard Classic are **never** VNet-injected. Premium Classic is not Premium v2. Internal mode still requires APIM platform management connectivity; it does not mean every service/control-plane address is private.
 
+Resource names end in scenario hints: `public-basic`, `private-developer`, `appgwnofilter`, and `appgwhostfilter`; opt-ins use `public-standard`, `private-premium`, and `public-iprestricted`. The prefix and unique suffix keep names globally distinct, and `scenario` tags describe each path. **`appgwnofilter` means no incoming-Host custom filter**, not disabled managed WAF inspection.
+
 ## Start here
 
 1. Follow [certificate preparation and deployment](docs/setup.md). Generate a seven-day lab-only self-signed certificate with `scripts/New-LabCertificate.ps1`, then use the deploy button or the CLI instructions. Secure certificate parameters have no defaults and no secrets appear in template outputs.
