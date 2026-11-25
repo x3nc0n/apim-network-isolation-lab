@@ -167,7 +167,7 @@ function Invoke-Probe {
     $errorFile = Join-Path $tempDirectory "$requestId.stderr"
     $urlAuthority = if ($SniHostname) { "${SniHostname}:$Port" } else { $ipAuthority }
     $arguments = @(
-        '--disable', '--silent', '--show-error', '--noproxy', '*',
+        '--silent', '--show-error',
         '--http1.1', '--proto', '=https', '--retry', '0',
         '--connect-timeout', "$ConnectTimeoutSeconds", '--max-time', "$TimeoutSeconds",
         '--max-filesize', '1048576', '--output', $bodyFile, '--dump-header', $headerFile,
@@ -185,7 +185,8 @@ function Invoke-Probe {
         $arguments += '--insecure'
     }
     $arguments += @('--url', "https://${urlAuthority}${Path}")
-    $statusText = & $curlPath @arguments 2> $errorFile
+    # Unix PowerShell expands wildcard arguments in splatted arrays; keep this literal quoted.
+    $statusText = & $curlPath --disable --noproxy '*' @arguments 2> $errorFile
     $curlExitCode = $LASTEXITCODE
     $status = 0
     $null = [int]::TryParse(($statusText -join '').Trim(), [ref] $status)

@@ -30,7 +30,7 @@ Basic/Standard Classic are **never** VNet-injected. Premium Classic is not Premi
 
 ## Local checks (no Azure login or deployment)
 
-Requires PowerShell **7.4+** for the certificate/test helpers, Node.js **24+**, curl, Azure CLI, and Bicep **0.49.2**. The unchanged standalone validator itself requires PowerShell 7.2+.
+Requires PowerShell **7.4+** for the certificate/test helpers, Node.js **24+**, curl, Azure CLI, and Bicep **0.49.2**. The standalone validator itself requires PowerShell 7.2+.
 
 ```powershell
 az bicep install --version v0.49.2
@@ -39,4 +39,6 @@ pwsh -NoProfile -File .\scripts\Test-Lab.ps1
 
 The checks compile/lint `main.bicep`, compare its full JSON output to committed `azuredeploy.json`, check deployment/SKU/WAF/NSG/telemetry contracts, mutation-test critical gates, and exercise the real validator against a localhost HTTPS fixture using the **helper-generated PFX/PEM**. CI runs the same command without Azure credentials or live resources.
 
-`scripts/Test-FrontendHostnameFilter.ps1` is reused byte-for-byte from [APIM-Analyzer commit a9acbeb](https://github.com/x3nc0n/APIM-Analyzer/commit/a9acbeb81b31385877e3b5b605ed6d138e71ed7d), SHA256 `d4f499d59ca5dd68c37cee382aff9e3440ee86758c7e4d996f33ba920b8109f1`. It reports JSON and exits **0 PASS / 1 FAIL / 2 INCONCLUSIVE**. PASS is a response-contract result, **not vulnerability immunity or a historical isolation attestation**.
+`scripts/Test-FrontendHostnameFilter.ps1` is adapted from [APIM-Analyzer commit a9acbeb](https://github.com/x3nc0n/APIM-Analyzer/commit/a9acbeb81b31385877e3b5b605ed6d138e71ed7d), original SHA256 `d4f499d59ca5dd68c37cee382aff9e3440ee86758c7e4d996f33ba920b8109f1`. The only functional change passes curl's `--noproxy '*'` as an explicitly quoted literal, fixing [Unix PowerShell wildcard expansion during array splatting](https://github.com/PowerShell/PowerShell/issues/24178); verdict semantics are retained. The lab copy's SHA256 is `256fe76fbce945e34201cfed852b6055a06b7b9a0a6f09ab387a4b3450b8d25c`. APIM-Analyzer is not modified.
+
+The validator reports JSON and exits **0 PASS / 1 FAIL / 2 INCONCLUSIVE**. PASS is a response-contract result, **not vulnerability immunity or a historical isolation attestation**.

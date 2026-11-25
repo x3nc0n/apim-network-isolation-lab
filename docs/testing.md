@@ -34,7 +34,7 @@ curl --disable --noproxy '*' --cacert $ca --http1.1 `
 
 On Windows, use `curl.exe` if `curl` is an alias in your shell. The validator resolves the actual executable itself. Do not use `-k` for the positive control. A Schannel revocation/trust error, expired certificate or hostname mismatch is a client/TLS failure to fix, not a successful block; the helper's explicit self-signed trust anchor is exercised by local tests without changing global certificate trust.
 
-## Run the unchanged validator
+## Run the validator
 
 ```powershell
 .\scripts\Test-FrontendHostnameFilter.ps1 `
@@ -74,4 +74,4 @@ Internal Developer/Premium NSGs allow TCP 443 only from the two gateway subnets,
 
 **INCONCLUSIVE / exit 2:** ambiguous denial, missing marker, timeout, reset, TLS/client error, or inability to validate negatives against the positive control. Failures are not silently converted to safety.
 
-Offline tests cover 10 HTTPS modes/requirements: permissive rewriting, strict Host filtering, Host-only filtering with SNI required, empty-body/header-marked rejection, ambiguous 403, missing marker, dropped connections, generic 404, failed positive control, and positive-marker content in a denial. Template contracts check default/optional SKUs, secure parameter propagation, distinct frontend resources, WAF Prevention/Host rule/custom marker, private routing/TLS probes, management/data-plane NSG ordering, mock policy and header telemetry. Mutation checks demonstrate rejection of injected Basic SKU, an Allow-rule substitution, and deletion of the management deny. None simulates the Azure control plane or proves actual Azure enforcement.
+Offline tests cover 10 HTTPS modes/requirements: permissive rewriting, strict Host filtering, Host-only filtering with SNI required, empty-body/header-marked rejection, ambiguous 403, missing marker, dropped connections, generic 404, failed positive control, and positive-marker content in a denial. All 100 probes must reach the fixture despite a deliberately unusable loopback proxy environment; this guards curl proxy bypass and the Unix wildcard/splatting regression documented in the README. Template contracts check default/optional SKUs, secure parameter propagation, distinct frontend resources, WAF Prevention/Host rule/custom marker, private routing/TLS probes, management/data-plane NSG ordering, mock policy and header telemetry. Mutation checks demonstrate rejection of injected Basic SKU, an Allow-rule substitution, and deletion of the management deny. None simulates the Azure control plane or proves actual Azure enforcement.

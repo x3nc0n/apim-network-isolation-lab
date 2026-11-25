@@ -14,9 +14,9 @@ const positive = 'APIM-NETWORK-LAB-OK';
 const denial = 'APIM-LAB-EDGE-DENIED';
 const validator = path.join(root, 'scripts', 'Test-FrontendHostnameFilter.ps1');
 
-function runPowerShell(args) {
+function runPowerShell(args, env = process.env) {
   return new Promise((resolve, reject) => {
-    const child = spawn('pwsh', ['-NoLogo', '-NoProfile', ...args], { windowsHide: true });
+    const child = spawn('pwsh', ['-NoLogo', '-NoProfile', ...args], { windowsHide: true, env });
     let output = '';
     child.stdout.on('data', data => { output += data; });
     child.stderr.on('data', data => { output += data; });
@@ -25,9 +25,9 @@ function runPowerShell(args) {
   });
 }
 
-test('supplied validator remains byte-for-byte unchanged', async () => {
+test('validator has the documented provenance hash', async () => {
   const hash = createHash('sha256').update(await readFile(validator)).digest('hex');
-  assert.equal(hash, 'd4f499d59ca5dd68c37cee382aff9e3440ee86758c7e4d996f33ba920b8109f1');
+  assert.equal(hash, '256fe76fbce945e34201cfed852b6055a06b7b9a0a6f09ab387a4b3450b8d25c');
 });
 
 test('real HTTPS response contracts, certificate helper and exit codes', { timeout: 240_000 }, async t => {
@@ -116,7 +116,12 @@ test('real HTTPS response contracts, certificate helper and exit codes', { timeo
         if (scenario.header) args.push('-RejectionHeaderPattern', '(?im)^X-Edge-Denial:\\s*hostname\\s*$');
         else if (!scenario.noMarker) args.push('-RejectionBodyPattern', denial);
         if (scenario.sni) args.push('-RequireSniMatch');
-        const result = await runPowerShell(args);
+        const result = await runPowerShell(args, {
+          ...process.env,
+          HTTPS_PROXY: 'http://127.0.0.1:1', https_proxy: 'http://127.0.0.1:1',
+          ALL_PROXY: 'http://127.0.0.1:1', all_proxy: 'http://127.0.0.1:1',
+          NO_PROXY: '', no_proxy: '',
+        });
         const report = JSON.parse((await readFile(outputPath, 'utf8')).replace(/^\uFEFF/, ''));
         assert.equal(result.code, scenario.exit, JSON.stringify(report.Results, null, 2));
         assert.equal(report.Overall, scenario.overall, result.output);
@@ -131,6 +136,7 @@ test('real HTTPS response contracts, certificate helper and exit codes', { timeo
     assert.ok(requests.some(r => r.sni === approvedHost && r.host === 'other.lab.example'));
     assert.ok(requests.some(r => r.sni === 'other.lab.example' && r.host === approvedHost));
     assert.ok(requests.some(r => !r.sni && r.host === approvedHost));
+    assert.equal(requests.length, 100, 'All probes must bypass the deliberately broken loopback proxy');
     assert.ok(requests.every(r => /^[a-f0-9]{32}$/.test(r.id)));
   } finally {
     if (server) await new Promise(resolve => server.close(resolve));
