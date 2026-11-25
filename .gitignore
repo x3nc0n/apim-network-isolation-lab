@@ -1,0 +1,7 @@
+.lab-secrets/
+*.pfx
+*.p12
+*.key
+*.secure.parameters.json
+FrontendHostnameValidation-*.json
+node_modules/

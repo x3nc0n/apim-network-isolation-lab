@@ -1,0 +1,2 @@
+* text=auto eol=lf
+scripts/Test-FrontendHostnameFilter.ps1 -text whitespace=cr-at-eol
