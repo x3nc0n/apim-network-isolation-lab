@@ -105,3 +105,5 @@ az group exists --name rg-apim-network-lab
 ```
 
 Keep the deletion confirmation prompt. Verify group deletion completes; do not assume requesting deletion immediately stops all charges. Remove the local secret file and public trust file when no longer needed. No certificate was installed globally by the helper.
+
+**Interrupted provisioning:** do not remove the VNet/NSGs while an injected APIM instance is still `Activating` or otherwise transitioning. APIM can reject deletion with `ServiceLocked` while a group deletion removes its supporting network resources. Wait for APIM to leave the transition, delete the APIM instances first and verify they no longer appear as active resources, then delete the remaining group. A canceled ARM deployment does not necessarily cancel the provider's ongoing APIM operation. If an instance remains locked, retain its dependencies and escalate through Azure Support rather than assuming cleanup succeeded or silently creating replacement billable instances.
