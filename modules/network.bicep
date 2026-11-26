@@ -76,6 +76,19 @@ resource apimNsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = [for (mo
         }
       }
       {
+        name: 'ApimPlatformProbes'
+        properties: {
+          priority: 103
+          direction: 'Inbound'
+          access: 'Allow'
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          destinationPortRanges: ['443', '3443']
+          sourceAddressPrefix: 'AzureLoadBalancer'
+          destinationAddressPrefix: '*'
+        }
+      }
+      {
         name: 'DenyOtherManagement'
         properties: {
           priority: 105

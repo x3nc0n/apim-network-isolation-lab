@@ -95,6 +95,12 @@ function assertNsgBoundaries(t) {
   assert.equal(rules.ApimControlPlane.sourceAddressPrefix, 'ApiManagement');
   assert.equal(rules.ApimLoadBalancer.sourceAddressPrefix, 'AzureLoadBalancer');
   assert.equal(rules.ApimLoadBalancer.destinationPortRange, '6390');
+  assert.ok(rules.ApimPlatformProbes, 'Explicit denies must not shadow platform load-balancer probes');
+  assert.equal(rules.ApimPlatformProbes.sourceAddressPrefix, 'AzureLoadBalancer');
+  assert.equal(rules.ApimPlatformProbes.access, 'Allow');
+  assert.deepEqual(rules.ApimPlatformProbes.destinationPortRanges, ['443', '3443']);
+  assert.ok(rules.ApimPlatformProbes.priority < rules.DenyOtherManagement.priority &&
+    rules.ApimPlatformProbes.priority < rules.DenyOtherHttps.priority);
   assert.equal(rules.DenyPublicHttp.destinationPortRange, '80');
   assert.match(rules.ApprovedHttpsSources.sourceAddressPrefixes, /externalAllowedCidr/);
   assert.match(rules.ApprovedHttpsSources.sourceAddressPrefixes, /gatewayPrefixes/);
@@ -210,6 +216,10 @@ test('critical assertions reject mutated real ARM artifacts', () => {
   const nsg = deployment(managementBypass, 'network').properties.template.resources.find(r => r.copy?.name === 'apimNsg');
   nsg.properties.securityRules = nsg.properties.securityRules.filter(r => r.name !== 'DenyOtherManagement');
   assert.throws(() => assertNsgBoundaries(managementBypass), /boundary/);
+  const blockedProbes = structuredClone(template);
+  const probeNsg = deployment(blockedProbes, 'network').properties.template.resources.find(r => r.copy?.name === 'apimNsg');
+  probeNsg.properties.securityRules = probeNsg.properties.securityRules.filter(r => r.name !== 'ApimPlatformProbes');
+  assert.throws(() => assertNsgBoundaries(blockedProbes), /platform load-balancer probes/);
   const missingLogger = structuredClone(template);
   const nested = deployment(missingLogger, 'public-basic').properties.template;
   nested.resources = nested.resources.filter(r => r.type !== 'Microsoft.ApiManagement/service/loggers');

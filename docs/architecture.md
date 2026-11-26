@@ -31,6 +31,7 @@ The VNet is `10.42.0.0/16`. Gateway subnets are `.0.0/24` and `.1.0/24`; interna
 | Inbound APIM rule | Priority | Scope |
 | --- | --- | --- |
 | Allow platform management | 100 | `ApiManagement` service tag to subnet TCP 3443 |
+| Preserve platform HTTPS/management probes | 103 | `AzureLoadBalancer` service tag to TCP 443 and 3443 |
 | Deny other management | 105 | All other sources to TCP 3443, before default VNet allow |
 | Allow APIM infrastructure probe | 110 | `AzureLoadBalancer` to TCP 6390 |
 | Allow approved HTTPS sources | 120 | Gateway subnets for internal instances; operator source CIDR for external instance |
@@ -38,6 +39,8 @@ The VNet is `10.42.0.0/16`. Gateway subnets are `.0.0/24` and `.1.0/24`; interna
 | Deny public HTTP | 140 | Internet to TCP 80 |
 
 Gateway NSGs allow Internet TCP 443, `GatewayManager` TCP 65200-65535, and Azure load-balancer probes. There are no custom deny-outbound rules, UDRs or forced tunneling. Azure-provided DNS and default outbound NSG rules retain APIM/AppGw dependencies: DNS 53, Storage 443, SQL 1433, Key Vault 443, Entra ID 443, Azure Monitor 1886/443, certificate-chain/revocation HTTP(S), NTP and platform endpoints. This is **inbound isolation**, not an egress-hardening reference architecture. Adding outbound denies without the full [dependency list](https://learn.microsoft.com/en-us/azure/api-management/virtual-network-reference) can break provisioning or telemetry.
+
+The explicit HTTPS/management probe allowance preserves platform reachability otherwise shadowed by the higher-priority deny rules: the default `AllowAzureLoadBalancerInBound` rule runs later. During live validation, management requests failed with HTTP 422 until this scoped platform allowance was added. It does not allow Internet clients or other VNet clients through the HTTPS/management denies.
 
 `publicNetworkAccess: Enabled` is retained for Classic APIM configurations; it is not being used as a "private gateway" assertion. Internal `virtualNetworkType` determines private data-plane placement. Platform management access on 3443 and other provider infrastructure must be distinguished from API traffic on 443. Application Gateway does **not** expose APIM management/portal listeners in this lab.
 

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.49.2.45890",
-      "templateHash": "5694541368340942510"
+      "templateHash": "3627946392210295269"
     }
   },
   "parameters": {
@@ -133,7 +133,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.49.2.45890",
-              "templateHash": "10955666259759103824"
+              "templateHash": "8706187866028169328"
             }
           },
           "parameters": {
@@ -273,6 +273,22 @@
                       "destinationPortRange": "3443",
                       "sourceAddressPrefix": "ApiManagement",
                       "destinationAddressPrefix": "[variables('apimPrefixes')[copyIndex()]]"
+                    }
+                  },
+                  {
+                    "name": "ApimPlatformProbes",
+                    "properties": {
+                      "priority": 103,
+                      "direction": "Inbound",
+                      "access": "Allow",
+                      "protocol": "Tcp",
+                      "sourcePortRange": "*",
+                      "destinationPortRanges": [
+                        "443",
+                        "3443"
+                      ],
+                      "sourceAddressPrefix": "AzureLoadBalancer",
+                      "destinationAddressPrefix": "*"
                     }
                   },
                   {
