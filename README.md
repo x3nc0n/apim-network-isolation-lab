@@ -8,6 +8,8 @@ A disposable Azure lab comparing **network reachability, backend Host rewriting,
 
 **Validation boundary:** local Bicep compilation, generated ARM parity, static/mutation contracts, and real localhost HTTPS validator scenarios can be checked without Azure credentials. **No live Azure deployment, ARM service-side validation, what-if, backend health, or runtime WAF behavior is certified by these tests.** Regional capacity, quotas, subscription policy, and runtime behavior require an explicitly authorized Azure deployment.
 
+The default topology was also tested in an operator-authorized Azure deployment: see [recorded live validation](docs/testing.md#recorded-live-validation). Optional variants were not deployed.
+
 ## Patterns
 
 | Pattern | Default? | Intended inbound path |

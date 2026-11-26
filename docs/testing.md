@@ -64,7 +64,25 @@ For public Basic/Standard, request the output URL without the lab trust file: th
 
 For the optional external instance, run the positive control from the configured source CIDR and again from an authorized client outside it. A drop observed from one client cannot certify historical policy or all network routes. Proxy/NAT changes can invalidate the configured source-IP assumption.
 
-Internal Developer/Premium NSGs allow TCP 443 only from the two gateway subnets, so an arbitrary VM in the VNet is **not** an allowed direct test client. No jump host, VPN, Bastion, private endpoint or peering is created. If you deliberately add a temporary private test client/rule, narrowly scope it, record the change, and remove it afterward; the rule changes the original boundary under test. Never expose 3443 to Internet to make a test pass.
+Internal Developer/Premium NSGs permit client TCP 443 only from the two gateway subnets, with separate `AzureLoadBalancer` platform-probe allowances. An arbitrary VM in the VNet is **not** an allowed direct test client. No jump host, VPN, Bastion, private endpoint or peering is created. If you deliberately add a temporary private test client/rule, narrowly scope it, record the change, and remove it afterward; the rule changes the original boundary under test. Never expose 3443 to Internet to make a test pass.
+
+## Recorded live validation
+
+An operator-authorized Azure run completed on **2026-11-26 UTC** using the default Basic Classic + internal Developer Classic topology and both WAF_v2 gateways. The tested template includes the explicit Azure Monitor logger and platform-probe fixes in commit `297ea6e`. No tenant/subscription identifiers, deployment endpoints, certificates, credentials or raw request logs are published here.
+
+| Check | Observed result |
+| --- | --- |
+| ARM deployment and both APIM instances | Succeeded |
+| Both Application Gateway backends | Healthy |
+| Direct public Basic positive control | Verified HTTPS, HTTP 200, expected mock marker |
+| Rewrite frontend validator | FAIL / exit 1, as expected; all six required negative probes returned the mock marker |
+| Strict frontend validator | PASS / exit 0; all six required negative probes met the 403/denial-marker contract |
+| Rewrite negative probes in APIM logs | 6/6 arrivals confirmed |
+| Strict negative probes in WAF/access logs | 6/6 custom Host blocks correlated to HTTP 403 with no backend response status |
+| Strict negative probes in APIM logs | No corresponding arrivals observed |
+| Positive-control correlation | 2/2 correlated between successful edge/backend requests and APIM using `x-appgw-trace-id` |
+
+This is bounded evidence from one live deployment, not an exploit demonstration, historical immunity claim or guarantee for every subscription/region. The same run collected 15 access, 7 WAF and 12 APIM log records; the extra records include other validator cases. Positive controls and correlated block records establish evidence beyond missing logs alone, but 100% configured sampling is not a universal delivery guarantee. Optional Standard, Premium and external-source-restricted instances were not deployed or live-tested. Host filtering does not establish SNI filtering.
 
 ## Verdict meanings and local contracts
 
@@ -74,4 +92,4 @@ Internal Developer/Premium NSGs allow TCP 443 only from the two gateway subnets,
 
 **INCONCLUSIVE / exit 2:** ambiguous denial, missing marker, timeout, reset, TLS/client error, or inability to validate negatives against the positive control. Failures are not silently converted to safety.
 
-Offline tests cover 10 HTTPS modes/requirements: permissive rewriting, strict Host filtering, Host-only filtering with SNI required, empty-body/header-marked rejection, ambiguous 403, missing marker, dropped connections, generic 404, failed positive control, and positive-marker content in a denial. All 100 probes must reach the fixture despite a deliberately unusable loopback proxy environment; this guards curl proxy bypass and the Unix wildcard/splatting regression documented in the README. Template contracts check default/optional SKUs, secure parameter propagation, distinct frontend resources, WAF Prevention/Host rule/custom marker, private routing/TLS probes, management/data-plane NSG ordering, mock policy and header telemetry. Mutation checks demonstrate rejection of injected Basic SKU, an Allow-rule substitution, and deletion of the management deny. None simulates the Azure control plane or proves actual Azure enforcement.
+Offline tests cover 10 HTTPS modes/requirements: permissive rewriting, strict Host filtering, Host-only filtering with SNI required, empty-body/header-marked rejection, ambiguous 403, missing marker, dropped connections, generic 404, failed positive control, and positive-marker content in a denial. All 100 probes must reach the fixture despite a deliberately unusable loopback proxy environment; this guards curl proxy bypass and the Unix wildcard/splatting regression documented in the README. Template contracts check default/optional SKUs, secure parameter propagation, distinct frontend resources, WAF Prevention/Host rule/custom marker, private routing/TLS probes, management/data-plane NSG ordering, mock policy and header telemetry. Mutation checks demonstrate rejection of injected Basic SKU, an Allow-rule substitution, deletion of the management deny or platform-probe allowance, and a missing/unordered Azure Monitor logger. None simulates the Azure control plane or proves actual Azure enforcement.
