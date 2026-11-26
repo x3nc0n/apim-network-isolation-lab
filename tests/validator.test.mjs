@@ -16,7 +16,7 @@ const validator = path.join(root, 'scripts', 'Test-FrontendHostnameFilter.ps1');
 
 function runPowerShell(args, env = process.env) {
   return new Promise((resolve, reject) => {
-    const child = spawn('pwsh', ['-NoLogo', '-NoProfile', ...args], { windowsHide: true, env });
+    const child = spawn('pwsh', ['-NoLogo', '-NoProfile', '-NonInteractive', ...args], { windowsHide: true, env });
     let output = '';
     child.stdout.on('data', data => { output += data; });
     child.stderr.on('data', data => { output += data; });
@@ -75,6 +75,34 @@ test('real HTTPS response contracts, certificate helper and exit codes', { timeo
       }
     });
     await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+    for (const missing of ['FrontendIp', 'GatewayHostname', 'Path']) {
+      await t.test(`requires an explicit ${missing}`, async () => {
+        const outputPath = path.join(temp, `missing-${missing}.json`);
+        const args = ['-File', validator, '-FrontendIp', '127.0.0.1',
+          '-GatewayHostname', approvedHost, '-Path', '/lab/health',
+          '-ApprovedBodyPattern', positive, '-Port', String(server.address().port),
+          '-CertificateAuthorityFile', path.join(certDirectory, 'lab-root.pem'),
+          '-OutputPath', outputPath];
+        args.splice(args.indexOf(`-${missing}`), 2);
+        const result = await runPowerShell(args);
+        assert.equal(result.code, 1, result.output);
+        assert.ok(result.output.includes(missing), result.output);
+        assert.match(result.output, /mandatory|NonInteractive/i);
+        await assert.rejects(readFile(outputPath), { code: 'ENOENT' });
+        assert.equal(requests.length, 0, 'Missing targets must not cause a fallback probe');
+      });
+    }
+    await t.test('rejects a URL instead of an approved DNS hostname', async () => {
+      const outputPath = path.join(temp, 'invalid-hostname.json');
+      const result = await runPowerShell(['-File', validator, '-FrontendIp', '127.0.0.1',
+        '-GatewayHostname', `https://${approvedHost}/lab/health`, '-Path', '/lab/health',
+        '-ApprovedBodyPattern', positive, '-Port', String(server.address().port),
+        '-OutputPath', outputPath]);
+      assert.equal(result.code, 1, result.output);
+      assert.match(result.output, /plain DNS hostname/);
+      await assert.rejects(readFile(outputPath), { code: 'ENOENT' });
+      assert.equal(requests.length, 0, 'Invalid hostnames must fail before network requests');
+    });
     const cases = [
       { mode: 'rewrite', overall: 'FAIL', exit: 1, check: r => {
         assert.ok(r.Results.some(p => p.Required && p.Name !== 'Approved control' && p.ApprovedMarkerMatched));

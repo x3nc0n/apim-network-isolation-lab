@@ -68,7 +68,7 @@ Internal Developer/Premium NSGs permit client TCP 443 only from the two gateway 
 
 ## Recorded live validation
 
-An operator-authorized Azure run completed on **2026-11-26 UTC** using the default Basic Classic + internal Developer Classic topology and both WAF_v2 gateways. The tested template includes the explicit Azure Monitor logger and platform-probe fixes in commit `297ea6e`. No tenant/subscription identifiers, deployment endpoints, certificates, credentials or raw request logs are published here.
+An operator-authorized Azure run completed on **2026-11-26 UTC** using the default Basic Classic + internal Developer Classic topology and both WAF_v2 gateways. The tested template includes the explicit Azure Monitor logger and platform-probe fixes in commit `297ea6e`. The operator subsequently authorized publishing [the example endpoints and public-only trust certificate](../README.md#try-the-deployed-public-lab); those exact README commands were also exercised against the live deployment. Tenant/subscription identifiers, private keys, certificate passwords and raw request logs are not published.
 
 | Check | Observed result |
 | --- | --- |
@@ -93,3 +93,5 @@ This is bounded evidence from one live deployment, not an exploit demonstration,
 **INCONCLUSIVE / exit 2:** ambiguous denial, missing marker, timeout, reset, TLS/client error, or inability to validate negatives against the positive control. Failures are not silently converted to safety.
 
 Offline tests cover 10 HTTPS modes/requirements: permissive rewriting, strict Host filtering, Host-only filtering with SNI required, empty-body/header-marked rejection, ambiguous 403, missing marker, dropped connections, generic 404, failed positive control, and positive-marker content in a denial. All 100 probes must reach the fixture despite a deliberately unusable loopback proxy environment; this guards curl proxy bypass and the Unix wildcard/splatting regression documented in the README. Template contracts check default/optional SKUs, secure parameter propagation, distinct frontend resources, WAF Prevention/Host rule/custom marker, private routing/TLS probes, management/data-plane NSG ordering, mock policy and header telemetry. Mutation checks demonstrate rejection of injected Basic SKU, an Allow-rule substitution, deletion of the management deny or platform-probe allowance, and a missing/unordered Azure Monitor logger. None simulates the Azure control plane or proves actual Azure enforcement.
+
+Additional regressions exercise noninteractive invocations with a missing target IP, approved hostname or path, and a URL supplied instead of a plain hostname. Each must fail before making any network request or writing a success-shaped report; there is no fallback to the public example endpoints.
