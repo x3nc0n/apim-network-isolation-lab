@@ -94,6 +94,14 @@ resource diagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' 
   }
 }
 
+resource monitorLogger 'Microsoft.ApiManagement/service/loggers@2024-05-01' = {
+  parent: apim
+  name: 'azuremonitor'
+  properties: {
+    loggerType: 'azureMonitor'
+  }
+}
+
 resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2024-05-01' = {
   parent: api
   name: 'azuremonitor'
@@ -114,6 +122,7 @@ resource apiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2024-0
       }
     }
   }
+  dependsOn: [monitorLogger]
 }
 
 output gatewayHostname string = replace(apim.properties.gatewayUrl, 'https://', '')

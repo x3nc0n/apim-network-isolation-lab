@@ -98,7 +98,7 @@ A positive marker proves the mock policy executed, not a real downstream call. A
 - [WAF policy template reference](https://learn.microsoft.com/en-us/azure/templates/microsoft.network/2024-05-01/applicationgatewaywebapplicationfirewallpolicies)
 - [APIM monitoring and collection settings](https://learn.microsoft.com/en-us/azure/api-management/monitor-api-management)
 - [API diagnostic schema](https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/2024-05-01/service/apis/diagnostics)
-- [Microsoft Azure/apiops built-in Azure Monitor diagnostic example](https://github.com/Azure/apiops/blob/main/SampleArtifacts/diagnostics/azuremonitor/diagnosticInformation.json)
+- [APIM logger schema (`azureMonitor` logger is explicitly created before API diagnostics)](https://learn.microsoft.com/en-us/azure/templates/microsoft.apimanagement/2024-05-01/service/loggers)
 - [AGWAccessLogs columns](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/agwaccesslogs)
 - [AGWFirewallLogs columns](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/agwfirewalllogs)
 - [ApiManagementGatewayLogs columns](https://learn.microsoft.com/en-us/azure/azure-monitor/reference/tables/apimanagementgatewaylogs)

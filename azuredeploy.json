@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.49.2.45890",
-      "templateHash": "263931185787704027"
+      "templateHash": "5694541368340942510"
     }
   },
   "parameters": {
@@ -423,7 +423,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.49.2.45890",
-              "templateHash": "3959691504564986372"
+              "templateHash": "1188609495408515831"
             }
           },
           "parameters": {
@@ -558,6 +558,17 @@
               ]
             },
             {
+              "type": "Microsoft.ApiManagement/service/loggers",
+              "apiVersion": "2024-05-01",
+              "name": "[format('{0}/{1}', parameters('name'), 'azuremonitor')]",
+              "properties": {
+                "loggerType": "azureMonitor"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('name'))]"
+              ]
+            },
+            {
               "type": "Microsoft.ApiManagement/service/apis/diagnostics",
               "apiVersion": "2024-05-01",
               "name": "[format('{0}/{1}/{2}', parameters('name'), 'network-lab', 'azuremonitor')]",
@@ -592,7 +603,8 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('name'), 'network-lab')]"
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('name'), 'network-lab')]",
+                "[resourceId('Microsoft.ApiManagement/service/loggers', parameters('name'), 'azuremonitor')]"
               ]
             }
           ],
@@ -654,7 +666,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.49.2.45890",
-              "templateHash": "3959691504564986372"
+              "templateHash": "1188609495408515831"
             }
           },
           "parameters": {
@@ -789,6 +801,17 @@
               ]
             },
             {
+              "type": "Microsoft.ApiManagement/service/loggers",
+              "apiVersion": "2024-05-01",
+              "name": "[format('{0}/{1}', parameters('name'), 'azuremonitor')]",
+              "properties": {
+                "loggerType": "azureMonitor"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('name'))]"
+              ]
+            },
+            {
               "type": "Microsoft.ApiManagement/service/apis/diagnostics",
               "apiVersion": "2024-05-01",
               "name": "[format('{0}/{1}/{2}', parameters('name'), 'network-lab', 'azuremonitor')]",
@@ -823,7 +846,8 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('name'), 'network-lab')]"
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('name'), 'network-lab')]",
+                "[resourceId('Microsoft.ApiManagement/service/loggers', parameters('name'), 'azuremonitor')]"
               ]
             }
           ],
@@ -881,7 +905,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.49.2.45890",
-              "templateHash": "3959691504564986372"
+              "templateHash": "1188609495408515831"
             }
           },
           "parameters": {
@@ -1016,6 +1040,17 @@
               ]
             },
             {
+              "type": "Microsoft.ApiManagement/service/loggers",
+              "apiVersion": "2024-05-01",
+              "name": "[format('{0}/{1}', parameters('name'), 'azuremonitor')]",
+              "properties": {
+                "loggerType": "azureMonitor"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('name'))]"
+              ]
+            },
+            {
               "type": "Microsoft.ApiManagement/service/apis/diagnostics",
               "apiVersion": "2024-05-01",
               "name": "[format('{0}/{1}/{2}', parameters('name'), 'network-lab', 'azuremonitor')]",
@@ -1050,7 +1085,8 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('name'), 'network-lab')]"
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('name'), 'network-lab')]",
+                "[resourceId('Microsoft.ApiManagement/service/loggers', parameters('name'), 'azuremonitor')]"
               ]
             }
           ],
@@ -1113,7 +1149,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.49.2.45890",
-              "templateHash": "3959691504564986372"
+              "templateHash": "1188609495408515831"
             }
           },
           "parameters": {
@@ -1248,6 +1284,17 @@
               ]
             },
             {
+              "type": "Microsoft.ApiManagement/service/loggers",
+              "apiVersion": "2024-05-01",
+              "name": "[format('{0}/{1}', parameters('name'), 'azuremonitor')]",
+              "properties": {
+                "loggerType": "azureMonitor"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('name'))]"
+              ]
+            },
+            {
               "type": "Microsoft.ApiManagement/service/apis/diagnostics",
               "apiVersion": "2024-05-01",
               "name": "[format('{0}/{1}/{2}', parameters('name'), 'network-lab', 'azuremonitor')]",
@@ -1282,7 +1329,8 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('name'), 'network-lab')]"
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('name'), 'network-lab')]",
+                "[resourceId('Microsoft.ApiManagement/service/loggers', parameters('name'), 'azuremonitor')]"
               ]
             }
           ],
@@ -1346,7 +1394,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.49.2.45890",
-              "templateHash": "3959691504564986372"
+              "templateHash": "1188609495408515831"
             }
           },
           "parameters": {
@@ -1481,6 +1529,17 @@
               ]
             },
             {
+              "type": "Microsoft.ApiManagement/service/loggers",
+              "apiVersion": "2024-05-01",
+              "name": "[format('{0}/{1}', parameters('name'), 'azuremonitor')]",
+              "properties": {
+                "loggerType": "azureMonitor"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('name'))]"
+              ]
+            },
+            {
               "type": "Microsoft.ApiManagement/service/apis/diagnostics",
               "apiVersion": "2024-05-01",
               "name": "[format('{0}/{1}/{2}', parameters('name'), 'network-lab', 'azuremonitor')]",
@@ -1515,7 +1574,8 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('name'), 'network-lab')]"
+                "[resourceId('Microsoft.ApiManagement/service/apis', parameters('name'), 'network-lab')]",
+                "[resourceId('Microsoft.ApiManagement/service/loggers', parameters('name'), 'azuremonitor')]"
               ]
             }
           ],

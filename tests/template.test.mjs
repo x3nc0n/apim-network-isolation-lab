@@ -104,6 +104,22 @@ function assertNsgBoundaries(t) {
     r.properties.sourceAddressPrefix === 'GatewayManager' && r.properties.destinationPortRange === '65200-65535'));
 }
 
+function assertMonitorLogger(t) {
+  for (const name of ['public-basic', 'internal-developer', 'public-standard', 'internal-premium', 'external-restricted']) {
+    const nested = deployment(t, name).properties.template;
+    const logger = resource(nested, 'Microsoft.ApiManagement/service/loggers');
+    assert.equal(logger.name, "[format('{0}/{1}', parameters('name'), 'azuremonitor')]");
+    assert.equal(logger.properties.loggerType, 'azureMonitor');
+    assert.equal(logger.properties.credentials, undefined);
+    const diagnostic = resource(nested, 'Microsoft.ApiManagement/service/apis/diagnostics');
+    assert.equal(diagnostic.properties.loggerId, '/loggers/azuremonitor');
+    assert.deepEqual(Object.keys(diagnostic.properties.frontend).sort(), ['request', 'response']);
+    assert.ok(diagnostic.dependsOn.some(dependency =>
+      dependency.includes("Microsoft.ApiManagement/service/loggers") && dependency.includes("'azuremonitor'")),
+    `${name}: API diagnostics must wait for the Azure Monitor logger`);
+  }
+}
+
 test('fresh compiler output exactly matches committed standalone ARM', { skip: !process.env.APIM_LAB_COMPILED_FILE }, async () => {
   const fresh = JSON.parse(await readFile(process.env.APIM_LAB_COMPILED_FILE, 'utf8'));
   assert.deepEqual(fresh, template, 'Regenerate azuredeploy.json with the pinned compiler');
@@ -158,6 +174,7 @@ test('WAF Host gate, marker, routing, backend TLS and NSG boundaries', () => {
 });
 
 test('mock operation and complete minimal APIM telemetry contract', () => {
+  assertMonitorLogger(template);
   const nested = deployment(template, 'internal-developer').properties.template;
   const api = resource(nested, 'Microsoft.ApiManagement/service/apis');
   assert.equal(api.properties.path, 'lab');
@@ -193,6 +210,14 @@ test('critical assertions reject mutated real ARM artifacts', () => {
   const nsg = deployment(managementBypass, 'network').properties.template.resources.find(r => r.copy?.name === 'apimNsg');
   nsg.properties.securityRules = nsg.properties.securityRules.filter(r => r.name !== 'DenyOtherManagement');
   assert.throws(() => assertNsgBoundaries(managementBypass), /boundary/);
+  const missingLogger = structuredClone(template);
+  const nested = deployment(missingLogger, 'public-basic').properties.template;
+  nested.resources = nested.resources.filter(r => r.type !== 'Microsoft.ApiManagement/service/loggers');
+  assert.throws(() => assertMonitorLogger(missingLogger), /Missing.*service\/loggers/);
+  const unorderedLogger = structuredClone(template);
+  resource(deployment(unorderedLogger, 'internal-developer').properties.template,
+    'Microsoft.ApiManagement/service/apis/diagnostics').dependsOn = [];
+  assert.throws(() => assertMonitorLogger(unorderedLogger), /must wait.*logger/);
 });
 
 test('Deploy to Azure URL decodes to an existing public main template', async () => {
